@@ -1,42 +1,40 @@
 import React from "react";
 
-const priorityStyles = {
-  Low: { bg: "#e6f4ea", color: "#2e7d32", icon: "🟢" },
-  Medium: { bg: "#fff6e0", color: "#a86b00", icon: "🟡" },
-  High: { bg: "#fbe3e6", color: "#a12030", icon: "🔴" },
-};
-
-const statusIcons = {
-  Pending: "⏳",
-  "In Progress": "🚧",
-  Completed: "✅",
+const priorityColors = {
+  Low: "#4caf50",
+  Medium: "#ff9800",
+  High: "#e53935",
 };
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 const TaskItem = ({ task, onEdit, onDelete, onStatusChange }) => {
-  const pStyle = priorityStyles[task.priority] || priorityStyles.Medium;
   const isCompleted = task.status === "Completed";
 
   return (
-    <div className={`task-item ${isCompleted ? "task-completed" : ""}`}>
-      <div className="task-item-header">
-        <h3 className="task-item-title">{task.title}</h3>
-        <span className="priority-badge" style={{ background: pStyle.bg, color: pStyle.color }}>
-          {pStyle.icon} {task.priority}
+    <div className={`task-item ${isCompleted ? "completed" : ""}`}>
+      <div className="task-item-top">
+        <h3>{task.title}</h3>
+        <span
+          className="priority-tag"
+          style={{ backgroundColor: priorityColors[task.priority] }}
+        >
+          {task.priority}
         </span>
       </div>
 
-      {task.description && <p className="task-item-desc">{task.description}</p>}
+      {task.description && <p className="task-desc">{task.description}</p>}
 
-      <div className="task-item-meta">
-        <span className="task-due">📅 {formatDate(task.dueDate)}</span>
+      <div className="task-meta">
+        <span>📅 {formatDate(task.dueDate)}</span>
         <select
-          className="status-select"
           value={task.status}
           onChange={(e) => onStatusChange(task._id, e.target.value)}
         >
@@ -46,13 +44,9 @@ const TaskItem = ({ task, onEdit, onDelete, onStatusChange }) => {
         </select>
       </div>
 
-      <div className="task-item-actions">
-        <button className="icon-btn edit-btn" onClick={() => onEdit(task)}>
-          ✏️ Edit
-        </button>
-        <button className="icon-btn delete-btn" onClick={() => onDelete(task._id)}>
-          🗑️ Delete
-        </button>
+      <div className="task-actions">
+        <button className="btn-small edit" onClick={() => onEdit(task)}>✏️ Edit</button>
+        <button className="btn-small delete" onClick={() => onDelete(task._id)}>🗑️ Delete</button>
       </div>
     </div>
   );

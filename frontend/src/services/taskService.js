@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/tasks";
+// 🔗 Backend API URL — hardcoded directly, no .env file needed.
+// If your backend runs on a different port, just change this line.
+const API_URL = "http://localhost:5000/api/tasks";
 
 const getTasks = (filters = {}) => {
   const params = {};

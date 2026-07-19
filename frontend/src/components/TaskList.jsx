@@ -2,17 +2,8 @@ import React from "react";
 import TaskItem from "./TaskItem.jsx";
 
 const TaskList = ({ tasks, loading, onEdit, onDelete, onStatusChange }) => {
-  if (loading) {
-    return <div className="empty-state">⏳ Loading your tasks...</div>;
-  }
-
-  if (!tasks || tasks.length === 0) {
-    return (
-      <div className="empty-state">
-        📭 No tasks found. Add your first task to get started!
-      </div>
-    );
-  }
+  if (loading) return <p className="empty-msg">⏳ Loading tasks...</p>;
+  if (!tasks.length) return <p className="empty-msg">📭 No tasks yet. Add one above!</p>;
 
   return (
     <div className="task-list">

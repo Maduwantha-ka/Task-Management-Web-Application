@@ -9,11 +9,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState(null);
   const [filters, setFilters] = useState({ priority: "All", status: "All" });
-  const [notice, setNotice] = useState(null);
+  const [message, setMessage] = useState(null);
 
-  const showNotice = (text, type = "success") => {
-    setNotice({ text, type });
-    setTimeout(() => setNotice(null), 3000);
+  const notify = (text) => {
+    setMessage(text);
+    setTimeout(() => setMessage(null), 2500);
   };
 
   const fetchTasks = useCallback(async () => {
@@ -22,10 +22,7 @@ function App() {
       const res = await taskService.getTasks(filters);
       setTasks(res.data.data);
     } catch (err) {
-      showNotice(
-        "❌ Could not load tasks. Is the backend server running?",
-        "error"
-      );
+      notify("❌ Could not load tasks. Is the backend running?");
     } finally {
       setLoading(false);
     }
@@ -39,38 +36,29 @@ function App() {
     try {
       if (editingTask) {
         await taskService.updateTask(editingTask._id, formData);
-        showNotice("✅ Task updated successfully!");
+        notify("✅ Task updated!");
         setEditingTask(null);
       } else {
         await taskService.createTask(formData);
-        showNotice("🎉 Task added successfully!");
+        notify("🎉 Task added!");
       }
       fetchTasks();
     } catch (err) {
-      const msg = err.response?.data?.message || "Something went wrong";
-      showNotice(`❌ ${msg}`, "error");
+      notify(`❌ ${err.response?.data?.message || "Something went wrong"}`);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this task? This cannot be undone.")) return;
-    try {
-      await taskService.deleteTask(id);
-      showNotice("🗑️ Task deleted");
-      fetchTasks();
-    } catch (err) {
-      showNotice("❌ Could not delete task", "error");
-    }
+    if (!window.confirm("Delete this task?")) return;
+    await taskService.deleteTask(id);
+    notify("🗑️ Task deleted");
+    fetchTasks();
   };
 
   const handleStatusChange = async (id, status) => {
-    try {
-      await taskService.updateTask(id, { status });
-      showNotice("🔄 Status updated");
-      fetchTasks();
-    } catch (err) {
-      showNotice("❌ Could not update status", "error");
-    }
+    await taskService.updateTask(id, { status });
+    notify("🔄 Status updated");
+    fetchTasks();
   };
 
   const handleEdit = (task) => {
@@ -78,47 +66,30 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleCancelEdit = () => setEditingTask(null);
-
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <h1>📋 Task Manager</h1>
-        <p className="app-subtitle">Stay on top of your daily tasks ✨</p>
-      </header>
+    <div className="app">
+      <h1>📋 Task Manager</h1>
 
-      {notice && (
-        <div className={`notice notice-${notice.type}`}>{notice.text}</div>
-      )}
+      {message && <div className="toast">{message}</div>}
 
-      <div className="app-content">
-        <div className="form-column">
-          <TaskForm
-            onSubmit={handleAddOrUpdate}
-            editingTask={editingTask}
-            onCancelEdit={handleCancelEdit}
-          />
-        </div>
+      <TaskForm
+        onSubmit={handleAddOrUpdate}
+        editingTask={editingTask}
+        onCancelEdit={() => setEditingTask(null)}
+      />
 
-        <div className="list-column">
-          <FilterBar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            taskCount={tasks.length}
-          />
-          <TaskList
-            tasks={tasks}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onStatusChange={handleStatusChange}
-          />
-        </div>
-      </div>
+      <FilterBar
+        filters={filters}
+        onFilterChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
+      />
+
+      <TaskList
+        tasks={tasks}
+        loading={loading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onStatusChange={handleStatusChange}
+      />
     </div>
   );
 }
