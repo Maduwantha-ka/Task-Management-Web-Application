@@ -54,10 +54,6 @@ Open a **new terminal**:
 ```bash
 cd frontend
 npm install
-cp .env.example .env
-```
-The default `.env` already points to `http://localhost:5000/api/tasks` — adjust if needed.
-
 Run the frontend:
 ```bash
 npm run dev
